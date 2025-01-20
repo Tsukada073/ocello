@@ -25,6 +25,42 @@ class EagarAI(object):
 
         return total_flips
 
+    def can_place_x_y(self, board, stone, x, y):
+        """
+        指定の座標に石を置けるかどうかを判定する。
+        置ける場合はTrue、置けない場合はFalseを返す。
+        """
+        # 盤面外の場合は置けない
+        if not (0 <= x < len(board[0]) and 0 <= y < len(board)):
+            return False
+
+        # すでに石が置いてある場合も置けない
+        if board[y][x] != 0:
+            return False
+
+        # 対象の石をひっくり返せるか確認する
+        opponent = 3 - stone
+        directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            has_opponent = False
+
+            while 0 <= nx < len(board[0]) and 0 <= ny < len(board):
+                if board[ny][nx] == opponent:
+                    has_opponent = True
+                elif board[ny][nx] == stone:
+                    if has_opponent:
+                        return True  # 石をひっくり返せる場合
+                    break
+                else:
+                    break
+
+                nx += dx
+                ny += dy
+
+        return False  # ひっくり返せない場合は置けない
+
     def get_valid_moves(self, board, stone):
         """
         置けるすべての有効な座標をリストとして返す。
@@ -32,7 +68,7 @@ class EagarAI(object):
         valid_moves = []
         for y in range(len(board)):
             for x in range(len(board[0])):
-                if can_place_x_y(board, stone, x, y):
+                if self.can_place_x_y(board, stone, x, y):
                     valid_moves.append((x, y))
         return valid_moves
 
